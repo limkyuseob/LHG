@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8"/>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8"/>
+  <title>TB</title>
+  <link rel="stylesheet" href="">
+  <style>
+      #wrap {
+        display: grid;
+        height: 60vh;
+        grid-template-columns: 1fr 5fr 1fr;
+        grid-gap: 10px;
+        grid-auto-rows: 20vh 55vh 25vh;
+        font-size: 16px;
+        text-align: center;
+      }
+
+      #calc-wrap {
+        grid-column: 2;
+        grid-row: 2;
+      }
+
+      #calc-box {
+          padding: 20px;
+          border: 10px solid #a9e1ed;
+          border-radius: 20px;
+      }
+
+      #calc-box ul {
+          list-style: none;
+          padding: 0;
+      }
+
+      #calc-box ul li {
+          margin: 17px 0;
+      }
+
+      #wdt, #hgh {
+        width: 200px;
+        height: 30px;
+        margin-left: 5px;
+        margin-right: 5px;
+      }
+
+      #res {
+        width: 280px;
+        height: 35px;
+        background-color: #dfd4e4;
+        border: none;
+        text-align: center;
+        font-weight: bold;
+        font-size: 18px;
+      }
+
+      #calc {
+          width: 289px;
+          height: 40px;
+          background-color: #afc4e7;
+          border: none;
+          border-radius: 10px;
+          color: #fff;
+          font-weight: bold;
+          font-size: 18px;
+      }
+
+      #remain-btn {
+        width: 130px;
+        height: 30px;
+        background-color: #eeafaf;
+        border: none;
+        border-radius: 10px;
+        color: #fff;
+        font-weight: bold;
+        font-size: 16px;
+      }
+      
+      #remain {
+          display: inline-block;
+          width: 150px;
+      }
+      #info {
+        font-weight: bold;
+        font-size: 13px;
+        text-align: left;
+        padding: 10px;
+      }
+      #logo {
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+      }
+      #logo span{
+        font-size: 13px;
+        color:#aaa;
+      }
+      #logo img{
+        width:180px;
+      }
+      .margin-0 {
+          margin: 0 !important;
+      }
+  </style>
+  <script src="" defer></script>
+</head>
+<body onload="init()">
+    <div id="wrap">
+        <div id="calc-wrap">
+            <div id="info">제품은 cm가 아닌 mm기준입니다. (10cm = 100mm)</div>
+            <div id="calc-box">
+                <ul>
+                    <li>
+                        측정 길이
+                        <input type="radio" name="option" id="option0" value="0" checked/>
+                        <label for="option0">베이직, 라운드</label>
+                        <input type="radio" name="option" id="option1" value="1"/>
+                        <label for="option1">와이드</label>
+                    </li>
+                    <li>
+                        가로 <input type="text" id="wdt"/>mm
+                    </li>
+                    <li>
+                        세로 <input type="text" id="hgh"/>mm
+                    </li>
+                    <li>
+                        <input type="button" value="개수 확인" id="calc"/>
+                    </li>
+                    <li>
+                        <input type="text" id="res" disabled value="가로 * 세로를 입력하세요"/>
+                    </li>
+                    <li>
+                        <input type="button" value="남는 나무 확인" id="remain-btn"/>
+                        <div id="remain"></div>
+                    </li>
+                    <li id="logo" class="margin-0">
+                        <span>구입하러 가기</span><img src="logo.jpg">
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+</body>
+<script>
+init = function() {
+    let remainText = '';
+    document.getElementById('calc').addEventListener('click', function() {
+        let basic = {width: 100, height: 2440, optName: '베이직, 라운드'};
+        let wide = {width: 120, height: 2440, optName: '와이드'};
+        let optionValue = document.querySelector('input[name="option"]:checked').value;
+        let [optWidth, optHeight, optName] = optionValue == 0 ? [basic.width, basic.height, basic.optName] : [wide.width, wide.height, wide.optName];
+        let inputWidth = parseInt(document.querySelector('#wdt').value);
+        let inputHeight = parseInt(document.querySelector('#hgh').value);
+        remainText = '';
+
+        if(inputHeight > optHeight * 2) {
+            document.getElementById("res").value = '가로 * 세로를 입력하세요';
+            document.getElementById("remain").innerHTML = '';
+            alert('070-4323-7199로 전화주세요! 감사합니다!');
+        } else if(inputWidth > 0, inputHeight > 0) {
+            let widthCnt = 0;
+            let resCnt = 0;
+            let remainCnt = 0;
+            let remainLength = 0;
+
+            widthCnt = Math.ceil(inputWidth/optWidth);
+
+            if((inputHeight%optHeight) == 0) {
+                resCnt = parseInt(inputHeight/optHeight) * widthCnt;
+            } else if(inputHeight < optHeight) {
+                let tempHeightLength = optHeight;
+                let heightCnt = 0;
+
+                for(let idx = 0; idx < widthCnt; idx++) {
+                    tempHeightLength = tempHeightLength - inputHeight - 3;
+                    heightCnt ++;
+
+                    if (tempHeightLength < inputHeight) break;
+                }
+
+                resCnt = Math.ceil(widthCnt/heightCnt);
+                remainLength = tempHeightLength > 0 ? tempHeightLength : 0;
+                remainCnt = remainLength > 0 ? Math.ceil(widthCnt/heightCnt) : 0;
+            } else {
+                let noneCuttingCnt = parseInt(inputHeight/optHeight);
+                let overHeight = (inputHeight - optHeight);
+                let tempHeightLength = optHeight;
+                let overHeightCnt = 0;
+
+                for(let idx = 0; idx < widthCnt; idx++) {
+                    tempHeightLength = tempHeightLength - overHeight - 3;
+                    overHeightCnt ++;
+
+                    if (tempHeightLength < overHeight) break;
+                }
+                
+                resCnt = (widthCnt * noneCuttingCnt) + (Math.ceil((widthCnt * noneCuttingCnt)/overHeightCnt));
+                remainLength = tempHeightLength > 0 ? tempHeightLength : 0;
+                remainCnt = remainLength > 0 ? resCnt : 0;
+            }
+
+            document.getElementById("res").value = `${optName} ${resCnt}개`;
+            remainText = `${optWidth} * ${remainLength}mm ${remainCnt}개`;
+        }
+    });
+
+    document.getElementById('remain-btn').addEventListener('click', function() {
+        document.getElementById("remain").innerHTML = remainText;
+    });
+
+    document.getElementById('logo').addEventListener('click', function() {
+        window.open('https://smartstore.naver.com/sscm');
+    });
+}
+</script>
+</html>
